@@ -13,7 +13,7 @@ from telegram import ReplyKeyboardMarkup
 import telegram
 import logging
 
-BEGIN, LEVEL, CANDY = range(3)
+START, LEVEL, CANDY = range(3)
 
 logger = logging.getLogger('logger')
 case_lever = logging.getLogger('case_lever')
@@ -33,23 +33,27 @@ def game (update, context): #
     context.bot.send_message(chat_id=update.effective_chat.id, text = task)
       
     context.bot.send_message(chat_id=update.effective_chat.id, text = "Ты готов?: да/нет")
+    context.bot.send_sticker(update.effective_chat.id,
+                                 'CAACAgIAAxkBAAIHB2L773CFUgSrJAJuSysSKC-13TffAAIeAAPANk8ToWBbLasAAd4EKQQ')
     return LEVEL
 
 def level (update, context):
     if str(update.message.text).lower() == 'да':
-        keyboard = [['Простой', 'Сложный']]
+        keyboard = [['Простой(против бота)', 'Сложный(против бота с интеллектом ']]
         markup_key = ReplyKeyboardMarkup(keyboard, resize_keyboard = True, one_time_keyboard=True)
-        context.bot.send_message(chat_id=update.effective_chat.id, text = "Выбери уровень: Простой/Сложный",reply_markup=markup_key,)
-        return BEGIN
+        context.bot.send_message(chat_id=update.effective_chat.id, text = "Выбери уровень игры: Простой/Сложный",reply_markup=markup_key,)
+        return START
     else:
-        context.bot.send_message(chat_id=update.effective_chat.id, text = "ОК. До встречи! Поиграем в следующий раз")
+        context.bot.send_message(chat_id=update.effective_chat.id, text = "ОК. До встречи! Поиграем в следующий раз!")
+        context.bot.send_sticker(update.effective_chat.id,
+                                 'CAACAgIAAxkBAAIHCWL779dyo3XXRB7S6swbvZ2UVIu2AAIMAAMkcWIax6R7FEdriGIpBA')
         return ConversationHandler.END
 
 
-def begin (update, context): # 
+def start (update, context): # 
     case_lever.info = update.message.text
     
-    lever = str("введите кол-во конфет (от 1 до 28): ")
+    lever = str("Твой ход! Введите кол-во конфет (от 1 до 28): ")
     context.bot.send_message(chat_id=update.effective_chat.id, text = lever)
     
     return CANDY
@@ -61,12 +65,12 @@ def candy (update, context):
     if update.message.text == 'stop':
         return ConversationHandler.END
     elif update.message.text.isdigit() == False:
-        context.bot.send_message(chat_id=update.effective_chat.id, text = "попробуйте еще раз (выход по слову stop)")
+        context.bot.send_message(chat_id=update.effective_chat.id, text = "Попробуйте еще раз (выход по слову /stop)")
     else:
         step_game = int(update.message.text)
 
         if (step_game > 28):
-            context.bot.send_message(chat_id=update.effective_chat.id, text = "попробуйте еще раз")
+            context.bot.send_message(chat_id=update.effective_chat.id, text = "Проснись!) Не более 28 конфет! Попробуйте еще раз!")
         elif (step_game == stack_candy)and(step_game < 29): # игрок забирает остатки конфет
             context.bot.send_message(chat_id=update.effective_chat.id, text = f"{user.first_name}, ты проиграл!")
             return ConversationHandler.END
@@ -84,16 +88,15 @@ def candy (update, context):
                 else : 
                     step_bot =  stack_candy%29
 
-            msg = f"мой ход: {step_bot}. \n В куче осталось {(stack_candy - step_bot)}" #ход бота
+            msg = f"Мой ход: {step_bot}. \n В куче осталось {(stack_candy - step_bot)}" #ход бота
             context.bot.send_message(chat_id=update.effective_chat.id, text = msg)
             stack_candy -= step_bot #определяем остаток конфет в куче
             logger.info =  stack_candy 
-            context.bot.send_message(chat_id=update.effective_chat.id, text = "теперь твой ход. (выход по слову stop)")      
+            context.bot.send_message(chat_id=update.effective_chat.id, text = "Теперь твой ход. (выход по слову stop)")      
 
 def end(update, context):
-       
     user = update.message.from_user  # определяем пользователя
-    context.bot.send_message(chat_id=update.effective_chat.id, text ="Конец")
+    context.bot.send_message(chat_id=update.effective_chat.id, text ="Конец игры!")
     # Заканчиваем игру
     return ConversationHandler.END
 
@@ -101,7 +104,7 @@ candy_handler = ConversationHandler(
         entry_points=[CommandHandler('game', game)],
         states= {
             LEVEL: [MessageHandler(Filters.text, level)],
-            BEGIN: [MessageHandler(Filters.text, begin)], 
+            START: [MessageHandler(Filters.text, start)], 
             CANDY: [MessageHandler(Filters.text, candy)]
                 },
         fallbacks=[CommandHandler('end', end)],

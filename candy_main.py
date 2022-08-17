@@ -1,7 +1,7 @@
 #На столе лежит 2021 конфета. Играют два игрока делая ход друг после друга. 
 # Первый ход определяется жеребьёвкой. За один ход можно забрать не более чем 28 конфет. 
 # Тот, кто берет последнюю конфету - проиграл.
-# Сколько конфет нужно взять первому игроку, чтобы забрать все конфеты у своего конкурента?
+
 
 # ход = сумма конфет // (28+1) - остаток от деления
 
@@ -33,20 +33,16 @@ def game (update, context): #
     context.bot.send_message(chat_id=update.effective_chat.id, text = task)
       
     context.bot.send_message(chat_id=update.effective_chat.id, text = "Ты готов?: да/нет")
-    context.bot.send_sticker(update.effective_chat.id,
-                                 'CAACAgIAAxkBAAIHB2L773CFUgSrJAJuSysSKC-13TffAAIeAAPANk8ToWBbLasAAd4EKQQ')
     return LEVEL
 
 def level (update, context):
     if str(update.message.text).lower() == 'да':
         keyboard = [['Простой(против бота)', 'Сложный(против бота с интеллектом ']]
         markup_key = ReplyKeyboardMarkup(keyboard, resize_keyboard = True, one_time_keyboard=True)
-        context.bot.send_message(chat_id=update.effective_chat.id, text = "Выбери уровень игры: Простой/Сложный",reply_markup=markup_key,)
+        context.bot.send_message(chat_id=update.effective_chat.id, text = "Выбери уровень игры: Простой(против бота)/Сложный(против бота с интеллектом)",reply_markup=markup_key,)
         return START
     else:
         context.bot.send_message(chat_id=update.effective_chat.id, text = "ОК. До встречи! Поиграем в следующий раз!")
-        context.bot.send_sticker(update.effective_chat.id,
-                                 'CAACAgIAAxkBAAIHCWL779dyo3XXRB7S6swbvZ2UVIu2AAIMAAMkcWIax6R7FEdriGIpBA')
         return ConversationHandler.END
 
 
@@ -80,7 +76,7 @@ def candy (update, context):
         else:
             stack_candy = stack_candy - step_game
             
-            if case_lever.info == "Простой": 
+            if case_lever.info == "Простой(против бота)": 
                 step_bot = randint(1,29)
             else:
                 if stack_candy%29 == 0: 
